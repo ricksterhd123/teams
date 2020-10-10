@@ -1,0 +1,15 @@
+<meta>
+    <oop>true</oop>y
+    <info author="exile" version="0.1.0" name="teams" description="team panel" type="script"/>
+    <!-- Colour picker from freeroam -->
+    <script src="colorpicker/colorpicker.lua" type="client"/>
+    <file src="colorpicker/alpha.png" type="client"/>
+    <file src="colorpicker/palette.png" type="client"/>
+    <!-- Client-side -->
+    <script src="gui/TeamCreate.lua" type="client"/>
+    <script src="gui/TeamPanel.lua" type="client"/>
+    <script src="client.lua" type="client"/>
+    <!-- Server-side -->
+    <script src="sql.lua" type="server"/>
+    <script src="server.lua" type="server"/>
+</meta>
