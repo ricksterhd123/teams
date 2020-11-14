@@ -14,19 +14,13 @@ function onTeamMemberDisband()
     triggerServerEvent("teams:onDisband", localPlayer)
 end
 
--- addEvent("teams:openCreator", true)
--- addEventHandler("teams:openCreator", resourceRoot,
--- For now it will stay client-side
-bindKey("f2", "down",
+addEvent("teams:openCreator", true)
+addEventHandler("teams:openCreator", resourceRoot,
 function ()
-    if not teamCreate.opened then
-        local createTeam = function (name, colour)
-            triggerServerEvent("teams:onCreate", localPlayer, name, colour)
-        end
-        teamCreate:create(createTeam)
-    else
-        teamCreate:destroy()
+    local createTeam = function (name, colour)
+        triggerServerEvent("teams:onCreate", localPlayer, name, colour)
     end
+    teamCreate:create(createTeam)
 end)
 
 addEvent("teams:closeCreator", true)

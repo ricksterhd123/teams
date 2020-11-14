@@ -1,4 +1,5 @@
 # Python script for batch reformatting of FRP team sqlite database
+# Removes from source db: duplicates/ NULL members/cases where owner is not a member
 import sqlite3
 
 RANKS = {"OWNER": 1, "MEMBER": 2}
@@ -52,7 +53,7 @@ def sourceToSink(srcConn, snkConn):
 
 if __name__ == "__main__":
     srcConn = sqlite3.connect('teams.db')
-    snkConn = sqlite3.connect('../team.db')
+    snkConn = sqlite3.connect('../teams.db')
     print("Creating tables")
     createTables(snkConn)
     print("Transferring data")

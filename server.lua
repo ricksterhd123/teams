@@ -1,4 +1,4 @@
-local TeamDatabase = teamDatabase("sqlite", "team.db")
+local TeamDatabase = teamDatabase("sqlite", "teams.db")
 local ranks = {["owner"] = 1, ["member"] = 2}
 
 -- Player creates team; becomes owner
@@ -84,6 +84,16 @@ function (thePlayer)
             local rank = TeamDatabase:getPlayerRank(thePlayer)
         
             return triggerClientEvent(thePlayer, "teams:openPanel", resourceRoot, {name=name, colour=colour, members=members, owner=rank==ranks["owner"], thisAccName=getAccountName(acc)})
+        end
+    end
+    return false
+end)
+
+addCommandHandler("registerteam", 
+function (thePlayer)
+    if not isGuestAccount(getPlayerAccount(thePlayer)) then
+        if not TeamDatabase:getPlayerClanName(thePlayer) then
+            return triggerClientEvent(thePlayer, "teams:openCreator", resourceRoot)
         end
     end
     return false

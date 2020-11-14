@@ -12,8 +12,8 @@
     For now custom ranks and permissions are beyond the scope of 0.1.0.
 ]]
 
-local team_table = "CREATE TABLE IF NOT EXISTS `teams` (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(32), colour VARCHAR(8))"
-local players_table = "CREATE TABLE IF NOT EXISTS `team_players` (account VARCHAR(32) PRIMARY KEY,  team_id INTEGER, rank_id INTEGER, FOREIGN KEY (team_id) REFERENCES teams(id))"
+local team_table = "CREATE TABLE IF NOT EXISTS `teams` (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(32), colour VARCHAR(8), UNIQUE(name))"
+local players_table = "CREATE TABLE IF NOT EXISTS `members` (account VARCHAR(32) PRIMARY KEY,  team_id INTEGER, rank_id INTEGER, FOREIGN KEY (team_id) REFERENCES teams(id))"
 local ranks = {["owner"] = 1, ["member"] = 2}   -- index -> id
 
 -- beyond the scope of this project... for now
@@ -39,11 +39,11 @@ end
 -- Team players
 function TeamDatabase:addClanMember(account, clanName, rank)
     local id = self:getIDFromClanName(clanName)
-    return id and self.connection:exec("INSERT INTO `team_players` VALUES(?, ?, ?)", account, id, rank)
+    return id and self.connection:exec("INSERT INTO `members` VALUES(?, ?, ?)", account, id, rank)
 end
 
 function TeamDatabase:getClanMembersFromID(id)
-    local qh = self.connection:query("SELECT * FROM `team_players` WHERE team_id = ?", id)
+    local qh = self.connection:query("SELECT * FROM `members` WHERE team_id = ?", id)
     if qh then
         local result = qh:poll(-1)
         return result and #result > 0 and result
@@ -61,7 +61,8 @@ function TeamDatabase:getOnlineClanMembers(clanName)
     if members then
         local onlineMembers = {}
         for _, member in ipairs(members) do
-            if getAccountPlayer(getAccount(member.account)) then
+            local account = getAccount(member.account)
+            if account and getAccountPlayer(account) then
                 table.insert(onlineMembers, member)
             end
         end
@@ -71,14 +72,14 @@ function TeamDatabase:getOnlineClanMembers(clanName)
 end
 
 function TeamDatabase:removeClanMember(accountName)
-    return self.connection:exec("DELETE FROM `team_players` WHERE account = ?", accountName)
+    return self.connection:exec("DELETE FROM `members` WHERE account = ?", accountName)
 end
 
 function TeamDatabase:getPlayerRank(player)
     local account = getPlayerAccount(player)
     if not isGuestAccount(account) then
         local accountName = getAccountName(account)
-        local qh = self.connection:query("SELECT rank_id FROM `team_players` WHERE account = ?", accountName)
+        local qh = self.connection:query("SELECT rank_id FROM `members` WHERE account = ?", accountName)
         if qh then
             local result = qh:poll(-1)
             return result and #result > 0 and result[1].rank_id
@@ -88,7 +89,7 @@ function TeamDatabase:getPlayerRank(player)
 end
 
 function TeamDatabase:getAccountClanName(accountName)
-    local qh = self.connection:query("SELECT team_id from `team_players` WHERE account = ?", accountName)
+    local qh = self.connection:query("SELECT team_id from `members` WHERE account = ?", accountName)
     if qh then
         local result = qh:poll(-1)
         return result and #result > 0 and self:getClanNameFromID(result[1].team_id)
@@ -140,7 +141,7 @@ end
 
 function TeamDatabase:removeClan(teamName)
     local teamID = self:getIDFromClanName(teamName)
-    return self.connection:exec("DELETE FROM `teams` WHERE name = ?", teamName) and self.connection:exec("DELETE FROM `team_players` WHERE team_id = ?", teamID)
+    return self.connection:exec("DELETE FROM `teams` WHERE name = ?", teamName) and self.connection:exec("DELETE FROM `members` WHERE team_id = ?", teamID)
 end
 
 teamDatabase = TeamDatabase

@@ -29,9 +29,10 @@ end
 function TeamCreate:create(createTeam)
     if self.opened then return end
     createTeam = createTeam or function (name, colour) iprint(name, colour) return end -- Default value
-    self.window[1] = guiCreateWindow((screenW - 368) / 2, 123, 368, 123, "Create team", false)
+    self.window[1] = guiCreateWindow((screenW - 368) / 2, (screenH - 123) / 2, 368, 123, "Create team", false)
     guiWindowSetSizable(self.window[1], false)
-    self.button[1] = guiCreateButton(85, 86, 196, 27, "Create", false, self.window[1])
+    self.button[1] = guiCreateButton(20, 86, 100, 27, "Create", false, self.window[1])
+    self.button[2] = guiCreateButton(125, 86, 100, 27, "Cancel", false, self.window[1])
     self.edit[1] = guiCreateEdit(95, 24, 263, 26, self.name, false, self.window[1])
     self.edit[2] = guiCreateEdit(95, 55, 263, 26, RGBToHex(self.colour[1], self.colour[2], self.colour[3]), false, self.window[1])
     self.label[1] = guiCreateLabel(8, 25, 77, 15, "Name", false, self.window[1])
@@ -51,6 +52,10 @@ function TeamCreate:create(createTeam)
         else
             outputChatBox("#00FF00[Teams] #FF0000Invalid name or colour, please try again.", 255, 255, 255, true)
         end
+    end, false)
+    addEventHandler("onClientGUIClick", self.button[2],
+    function ()
+        TeamCreate:destroy()
     end, false)
     self.opened = true
 end
