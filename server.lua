@@ -1,5 +1,6 @@
 local TeamDatabase = teamDatabase("sqlite", "teams.db")
 local ranks = {["owner"] = 1, ["member"] = 2}
+local invites = {} -- Player invites
 
 -- Player creates team and becomes its owner
 addEvent("teams:onCreate", true)
@@ -14,7 +15,7 @@ function (name, colour)
                 if TeamDatabase:createClan(owner, name, colour) then
                     outputChatBox("#00FF00[Teams] #FFFFFFYou have successfully created a team, please refer to F9 for useful information", source, 255, 255, 255, true)
                     setPlayerTeam(source, createTeam(name, HexToRGB(colour)))
-                    outputServerLog("[Teams] "..ownerAcc.." created new team '"..clanName.."'")
+                    outputServerLog("[Teams] "..getAccountName(ownerAcc).." created new team '"..name.."'")
                 end
             elseif clanName == name then
                 outputChatBox("#00FF00[Teams] #FF0000Team already exists, please use an original team name", source, 255, 255, 255, true)
@@ -99,6 +100,32 @@ end)
 addCommandHandler("registerteam", 
 function (thePlayer)
     return not isGuestAccount(getPlayerAccount(thePlayer)) and not TeamDatabase:getPlayerClanName(thePlayer) and triggerClientEvent(thePlayer, "teams:openCreator", resourceRoot)
+end)
+
+addCommandHandler("teaminvite",
+function (thePlayer, cmd, playerName)
+    local clanName = TeamDatabase:getPlayerClanName(thePlayer)
+    local player = getPlayerFromPartialName(playerName)
+    if clanName and TeamDatabase:getPlayerRank(thePlayer) == ranks["owner"] and player and player ~= thePlayer and not isGuestAccount(getPlayerAccount(player)) then
+        local isNotTeamMember = not TeamDatabase:getPlayerClanName(player)
+        if isNotTeamMember and not invites[player] then
+            invites[player] = clanName
+            outputChatBox("#00FF00[Teams] #FFFFFF"..tostring(getPlayerName(thePlayer):gsub("#%x%x%x%x%x%x", "")).." has invited you to join '"..clanName.."'", player, 255, 255, 255, true)
+            outputChatBox("#00FFF0[Teams] #FFFFFFYou have 10 seconds to type /teamaccept to accept", player, 255, 255, 255, true)
+            setTimer(function(player) invites[player] = nil end, 10000, 1)
+        end
+    end
+end)
+
+addCommandHandler("teamaccept", 
+function (thePlayer)
+    local account = getPlayerAccount(thePlayer)
+    local clanName = invites[thePlayer]
+    if not isGuestAccount(account) and clanName then
+        if TeamDatabase:addClanMember(account, clanName, ranks["member"]) then
+            outputChatBox("#00FF00[Teams] #FFFFFFWelcome to '"..clanName.."'!", thePlayer, 255, 255, 255, true)
+        end
+    end
 end)
 
 addEventHandler("onPlayerLogin", root, 
