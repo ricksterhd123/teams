@@ -17,33 +17,29 @@ end
 addEvent("teams:openCreator", true)
 addEventHandler("teams:openCreator", resourceRoot,
 function ()
-    local createTeam = function (name, colour)
-        triggerServerEvent("teams:onCreate", localPlayer, name, colour)
-    end
-    teamCreate:create(createTeam)
+    teamCreate:create(
+        function (name, colour)
+            triggerServerEvent("teams:onCreate", localPlayer, name, colour)
+        end
+    )
 end)
 
-addEvent("teams:closeCreator", true)
-addEventHandler("teams:closeCreator", resourceRoot,
+addEvent("teams:closeTeamPanel", true)
+addEventHandler("teams:closeTeamPanel", resourceRoot,
 function ()
-    teamCreate:destroy()
+    teamPanel:destroy()
 end)
 
 addEvent("teams:updatePanel", true)
 addEventHandler("teams:updatePanel", root, 
-function ()
-
+function (clanMembers)
+    teamPanel:update(_, clanMembers)
 end)
 
 -- Server requests source's client to open panel
 addEvent("teams:openPanel", true)
 addEventHandler("teams:openPanel", resourceRoot, 
 function (data)
-    local clanName = data.name
-    local clanMembers = data.members
-    local isOwner = data.owner
-    local thisAccountName = data.thisAccName
-
-    teamPanel:update(clanName, clanMembers, isOwner, thisAccountName)
+    teamPanel:update(data.name, data.members, data.owner, data.thisAccName)
     teamPanel:create(onTeamMemberLeave, onTeamMemberKick, onTeamMemberDisband)
 end)

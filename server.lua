@@ -1,7 +1,7 @@
 local TeamDatabase = teamDatabase("sqlite", "teams.db")
 local ranks = {["owner"] = 1, ["member"] = 2}
 
--- Player creates team; becomes owner
+-- Player creates team and becomes its owner
 addEvent("teams:onCreate", true)
 addEventHandler("teams:onCreate", root,
 function (name, colour)
@@ -11,18 +11,15 @@ function (name, colour)
             local owner = getAccountName(ownerAcc)
             local clanName = TeamDatabase:getPlayerClanName(source)
             if not clanName then
-                local result = TeamDatabase:createClan(owner, name, colour)
-                if result then
+                if TeamDatabase:createClan(owner, name, colour) then
                     outputChatBox("#00FF00[Teams] #FFFFFFYou have successfully created a team, please refer to F9 for useful information", source, 255, 255, 255, true)
-                else
-                    -- TODO LOG
+                    setPlayerTeam(source, createTeam(name, HexToRGB(colour)))
+                    outputServerLog("[Teams] "..ownerAcc.." created new team '"..clanName.."'")
                 end
             elseif clanName == name then
                 outputChatBox("#00FF00[Teams] #FF0000Team already exists, please use an original team name", source, 255, 255, 255, true)
-                -- TODO LOG
             else
                 outputChatBox("#00FF00[Teams] #FF0000You are already a team member", source, 255, 255, 255, true)
-                -- TODO LOG
             end
         end
     end
@@ -38,7 +35,12 @@ function (accName)
             local clanName = TeamDatabase:getAccountClanName(accName)
             if clanName then
                 TeamDatabase:removeClanMember(accName)
-                -- TODO: update panel for online members
+                local team = getTeamFromName(clanName)
+                if team and countPlayersInTeam(team) <= 1 then
+                    destroyElement(team)
+                    setPlayerTeam(source, nil)
+                end
+                triggerClientEvent(client, "teams:updatePanel", TeamDatabase:getOnlineClanMembers(clanName))
             end
         end
     end
@@ -49,11 +51,12 @@ addEvent("teams:onDisband", true)
 addEventHandler("teams:onDisband", root, 
 function ()
     if client == source then
+        local clanName = TeamDatabase:getPlayerClanName(source)
         local sourceRank = TeamDatabase:getPlayerRank(source)
         if sourceRank == ranks["owner"] then
-            local clanName = TeamDatabase:getPlayerClanName(source)
             TeamDatabase:removeClan(clanName)
-            -- TODO: destroy panel
+            destroyElement(getTeamFromName(clanName))
+            triggerClientEvent(client, "teams:closeTeamPanel", resourceRoot)
         end
     end
 end)
@@ -63,10 +66,15 @@ addEvent("teams:onLeave", true)
 addEventHandler("teams:onLeave", root, 
 function ()
     if client == source then
+        local clanName = TeamDatabase:getPlayerClanName(source)
         local sourceRank = TeamDatabase:getPlayerRank(source)
         if sourceRank == ranks["member"] then
             TeamDatabase:removeClanMember(getAccountName(getPlayerAccount(source)))
-            -- TODO: destroy panel
+            local team = getTeamFromName(clanName)
+            if countPlayersInTeam(team) <= 1 then
+                destroyElement(team)
+            end
+            triggerClientEvent(client, "teams:closeTeamPanel", resourceRoot)
         end
     end
 end)
@@ -77,20 +85,52 @@ function (thePlayer)
     local acc = getPlayerAccount(thePlayer)
     if not isGuestAccount(acc) then
         local name = TeamDatabase:getPlayerClanName(thePlayer)
+        -- Is the player a clan member?
         if name then
-            -- local clanID = TeamDatabase:getIDFromClanName(name)
             local members = TeamDatabase:getClanMembers(name)
             local colour = TeamDatabase:getColourFromClanName(name)
             local rank = TeamDatabase:getPlayerRank(thePlayer)
-        
-            return triggerClientEvent(thePlayer, "teams:openPanel", resourceRoot, {name=name, colour=colour, members=members, owner=rank==ranks["owner"], thisAccName=getAccountName(acc)})
+            triggerClientEvent(thePlayer, "teams:openPanel", resourceRoot, {name=name, colour=colour, members=members, owner=rank==ranks["owner"], thisAccName=getAccountName(acc)})
         end
     end
-    return false
 end)
 
 -- User requests to create team
 addCommandHandler("registerteam", 
 function (thePlayer)
     return not isGuestAccount(getPlayerAccount(thePlayer)) and not TeamDatabase:getPlayerClanName(thePlayer) and triggerClientEvent(thePlayer, "teams:openCreator", resourceRoot)
+end)
+
+addEventHandler("onPlayerLogin", root, 
+function ()
+    local name = TeamDatabase:getPlayerClanName(source)
+    -- Is the player a clan member?
+    if name then
+        local team = getTeamFromName(name)
+        if not team then
+            team = createTeam(name, HexToRGB(TeamDatabase:getColourFromClanName(name)))
+        end
+        setPlayerTeam(source, team)
+    end
+end)
+
+addEventHandler("onPlayerLogout", root, 
+function ()
+    local team = getPlayerTeam(source)
+    if team then
+        if countPlayersInTeam(team) <= 1 then
+            destroyElement(team)
+        end
+    end
+    setPlayerTeam(source, nil)
+end)
+
+addEventHandler("onPlayerQuit", root, 
+function ()
+    local team = getPlayerTeam(source)
+    if team then
+        if countPlayersInTeam(team) <= 1 then
+            destroyElement(team)
+        end
+    end
 end)

@@ -17,11 +17,12 @@ local TeamPanel = {
 }
 
 function TeamPanel:update(clanName, members, isOwner, thisAccName)
-    self.info.clanName = clanName
-    self.info.members = members
-    self.info.isOwner = isOwner
-    self.info.thisAccName = thisAccName
+    self.info.clanName = clanName or self.info.clanName
+    self.info.members = members or self.info.members
+    self.info.isOwner = isOwner or self.info.isOwner
+    self.info.thisAccName = thisAccName or self.info.thisAccName
 
+    -- TODO: Use a better GUI?
     if isOwner then
         if #members > 1 then
             self.mainBtnState = 2

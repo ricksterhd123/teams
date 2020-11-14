@@ -9,19 +9,6 @@ local TeamCreate = {
     colour = {0,0,0}
 }
 
-function RGBToHex(red, green, blue, alpha)
-	-- Make sure RGB values passed to this function are correct
-	if( ( red < 0 or red > 255 or green < 0 or green > 255 or blue < 0 or blue > 255 ) or ( alpha and ( alpha < 0 or alpha > 255 ) ) ) then
-		return nil
-	end
-	-- Alpha check
-	if alpha then
-		return string.format("#%.2X%.2X%.2X%.2X", red, green, blue, alpha)
-	else
-		return string.format("#%.2X%.2X%.2X", red, green, blue)
-	end
-end
-
 function closedColorPicker(r,g,b,a)
     teamCreate:setColour(r,g,b)
 end
@@ -41,6 +28,7 @@ function TeamCreate:create(createTeam)
     self.label[2] = guiCreateLabel(8, 56, 77, 15, "Colour", false, self.window[1])
     guiLabelSetHorizontalAlign(self.label[2], "center", false)
     guiLabelSetVerticalAlign(self.label[2], "center")
+    guiSetInputMode("no_binds_when_editing")
     showCursor(true)
 
     addEventHandler("onClientGUIChanged", self.edit[1], function() TeamCreate:setName(guiGetText(source)) end)
@@ -57,6 +45,7 @@ function TeamCreate:create(createTeam)
     function ()
         TeamCreate:destroy()
     end, false)
+
     self.opened = true
 end
 

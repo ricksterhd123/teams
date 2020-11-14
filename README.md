@@ -12,6 +12,6 @@ A team script a little bit more robust than the one in FRP
 - [X] Kick user then update database
 - [X] Delete team then update database
 - [X] Leave team
+- [X] Scoreboard/Chat
 - [ ] Differentiate between members which are online and offline
 - [ ] Invite players to team via cmd
-- [ ] Scoreboard/Chat
