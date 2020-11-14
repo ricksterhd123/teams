@@ -89,12 +89,8 @@ function (thePlayer)
     return false
 end)
 
+-- User requests to create team
 addCommandHandler("registerteam", 
 function (thePlayer)
-    if not isGuestAccount(getPlayerAccount(thePlayer)) then
-        if not TeamDatabase:getPlayerClanName(thePlayer) then
-            return triggerClientEvent(thePlayer, "teams:openCreator", resourceRoot)
-        end
-    end
-    return false
+    return not isGuestAccount(getPlayerAccount(thePlayer)) and not TeamDatabase:getPlayerClanName(thePlayer) and triggerClientEvent(thePlayer, "teams:openCreator", resourceRoot)
 end)
