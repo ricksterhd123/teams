@@ -7,6 +7,7 @@ local TeamPanel = {
     info = {    -- Information about the team
         clanName = "",
         members = {},
+        membersOnline = {},
         isOwner = false,
         thisAccName = ""
     },
@@ -16,15 +17,16 @@ local TeamPanel = {
     mainBtnState  = 1,
 }
 
-function TeamPanel:update(clanName, members, isOwner, thisAccName)
+function TeamPanel:update(clanName, members, membersOnline, isOwner, thisAccName)
     self.info.clanName = clanName or self.info.clanName
     self.info.members = members or self.info.members
+    self.info.membersOnline = membersOnline or self.info.membersOnline
     self.info.isOwner = isOwner or self.info.isOwner
     self.info.thisAccName = thisAccName or self.info.thisAccName
 
     -- TODO: Use a better GUI?
-    if isOwner then
-        if #members > 1 then
+    if self.info.isOwner then
+        if #self.info.members > 1 then
             self.mainBtnState = 2
         else
             self.mainBtnState = 3
@@ -34,6 +36,11 @@ function TeamPanel:update(clanName, members, isOwner, thisAccName)
     end
 
     if self.opened then
+        guiSetText(self.button[1], self.mainBtnStates[self.mainBtnState])
+        local handlers = getEventHandlers("onClientGUIClick", self.gridlist[1])
+        for _, v in ipairs(handlers) do
+            removeEventHandler("onClientGUIClick", self.gridlist[1], v)
+        end
         destroyElement(self.gridlist[1])
         teamPanel:createGridList()
     end
@@ -49,42 +56,49 @@ function TeamPanel:createGridList()
         local accName = self.info.members[i].account
         guiGridListSetItemText(self.gridlist[1], id, 1, accName, false, false)
 
+        for i, v in ipairs(self.info.membersOnline) do
+            if accName == v then
+                guiGridListSetItemColor(self.gridlist[1], id, 1, 255, 255, 255)
+            end
+        end
+
         if accName == self.info.thisAccName then
-            guiGridListSetItemColor(self.gridlist[1], id, 1, 0, 255, 0, 255)
+            guiGridListSetItemColor(self.gridlist[1], id, 1, 0, 255, 0)
+        else
+            guiGridListSetItemColor(self.gridlist[1], id, 1, 150, 0, 0)
         end
     end
+
+    addEventHandler("onClientGUIClick", self.gridlist[1], function()
+        local rid, cid = guiGridListGetSelectedItem(source)
+        local selectedAcc = guiGridListGetItemText(source, rid, cid)
+        if TeamPanel.mainBtnState == 2 then
+            guiSetEnabled(TeamPanel.button[1], rid ~= -1 and selectedAcc ~= TeamPanel.info.thisAccName)
+        else
+            guiSetEnabled(TeamPanel.button[1], true)
+        end
+    end, false)
 end
 
 function TeamPanel:create(leave, kick, delete)
     if not self.opened then
         self.window[1] = guiCreateWindow((screenW - 500) / 2, (screenH - 400) / 2, 500, 400, self.info.clanName, false)
         guiWindowSetSizable(self.window[1], false)
-        self:createGridList()
         self.button[1] = guiCreateButton(12, 339, 155, 35, self.mainBtnStates[self.mainBtnState], false, self.window[1])
         guiSetEnabled(self.button[1], self.mainBtnState == 1 or self.mainBtnState == 3)   
         self.button[2] = guiCreateButton(171, 339, 155, 35, "Close", false, self.window[1])
         self.fns = {leave, kick, delete}
+        self:createGridList()
 
-        addEventHandler("onClientGUIClick", self.gridlist[1], function()
-            local rid, cid = guiGridListGetSelectedItem(source)
-            local selectedAcc = guiGridListGetItemText(source, rid, cid)
-            if TeamPanel.mainBtnState == 2 then
-                if rid ~= -1 and selectedAcc ~= TeamPanel.info.thisAccName then
-                    guiSetEnabled(TeamPanel.button[1], true)
-                else
-                    guiSetEnabled(TeamPanel.button[1], false)
-                end
-            end
-        end, false)
-
-        -- todo: access leave, kick and delete
-        addEventHandler("onClientGUIClick", self.button[1], function() 
+        addEventHandler("onClientGUIClick", self.button[1], function()
             local fid = TeamPanel.mainBtnState
             local f = TeamPanel.fns[fid]
+            iprint(fid)
             if fid == 2 then
                 local gridlist = TeamPanel.gridlist[1]
                 local rid, cid = guiGridListGetSelectedItem(gridlist)
                 local selectedAcc = guiGridListGetItemText(gridlist, rid, cid)
+                iprint(selectedAcc)
                 f(selectedAcc)  -- kick selected player
             else
                 f() -- leave/delete clan

@@ -31,15 +31,15 @@ function ()
 end)
 
 addEvent("teams:updatePanel", true)
-addEventHandler("teams:updatePanel", root, 
-function (clanMembers)
-    teamPanel:update(_, clanMembers)
+addEventHandler("teams:updatePanel", resourceRoot, 
+function (members, onlineMembers)
+    teamPanel:update(_, members, onlineMembers)
 end)
 
 -- Server requests source's client to open panel
 addEvent("teams:openPanel", true)
 addEventHandler("teams:openPanel", resourceRoot, 
 function (data)
-    teamPanel:update(data.name, data.members, data.owner, data.thisAccName)
+    teamPanel:update(data.name, data.members, data.onlineMembers, data.owner, data.thisAccName)
     teamPanel:create(onTeamMemberLeave, onTeamMemberKick, onTeamMemberDisband)
 end)

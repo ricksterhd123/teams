@@ -1,4 +1,4 @@
-local TeamDatabase = teamDatabase("sqlite", "teams.db")
+local TeamDatabase = false
 local ranks = {["owner"] = 1, ["member"] = 2}
 local invites = {} -- Player invites
 
@@ -37,11 +37,14 @@ function (accName)
             if clanName then
                 TeamDatabase:removeClanMember(accName)
                 local team = getTeamFromName(clanName)
-                if team and countPlayersInTeam(team) <= 1 then
-                    destroyElement(team)
-                    setPlayerTeam(source, nil)
+                if team then 
+                    if countPlayersInTeam(team) <= 1 then
+                        destroyElement(team)
+                    else
+                        setPlayerTeam(getAccountPlayer(getAccount(accName)), nil)
+                    end
                 end
-                triggerClientEvent(client, "teams:updatePanel", TeamDatabase:getOnlineClanMembers(clanName))
+                triggerClientEvent(client, "teams:updatePanel", resourceRoot, TeamDatabase:getClanMembers(clanName), TeamDatabase:getOnlineClanMembers(clanName))
             end
         end
     end
@@ -89,9 +92,10 @@ function (thePlayer)
         -- Is the player a clan member?
         if name then
             local members = TeamDatabase:getClanMembers(name)
+            local onlineMembers = TeamDatabase:getOnlineClanMembers(name)
             local colour = TeamDatabase:getColourFromClanName(name)
             local rank = TeamDatabase:getPlayerRank(thePlayer)
-            triggerClientEvent(thePlayer, "teams:openPanel", resourceRoot, {name=name, colour=colour, members=members, owner=rank==ranks["owner"], thisAccName=getAccountName(acc)})
+            triggerClientEvent(thePlayer, "teams:openPanel", resourceRoot, {name=name, colour=colour, members=members, onlineMembers=onlineMembers, owner=rank==ranks["owner"], thisAccName=getAccountName(acc)})
         end
     end
 end)
@@ -112,7 +116,7 @@ function (thePlayer, cmd, playerName)
             invites[player] = clanName
             outputChatBox("#00FF00[Teams] #FFFFFF"..tostring(getPlayerName(thePlayer):gsub("#%x%x%x%x%x%x", "")).." has invited you to join '"..clanName.."'", player, 255, 255, 255, true)
             outputChatBox("#00FFF0[Teams] #FFFFFFYou have 10 seconds to type /teamaccept to accept", player, 255, 255, 255, true)
-            setTimer(function(player) invites[player] = nil end, 10000, 1)
+            setTimer(function(player) invites[player] = nil end, 10000, 1, player)
         end
     end
 end)
@@ -122,12 +126,28 @@ function (thePlayer)
     local account = getPlayerAccount(thePlayer)
     local clanName = invites[thePlayer]
     if not isGuestAccount(account) and clanName then
-        if TeamDatabase:addClanMember(account, clanName, ranks["member"]) then
+        if TeamDatabase:addClanMember(getAccountName(account), clanName, ranks["member"]) then
             outputChatBox("#00FF00[Teams] #FFFFFFWelcome to '"..clanName.."'!", thePlayer, 255, 255, 255, true)
+            setPlayerTeam(thePlayer, getTeamFromName(clanName))
         end
     end
 end)
 
+addEventHandler("onResourceStart", resourceRoot,
+function ()
+    TeamDatabase = teamDatabase("sqlite", "teams.db")
+    for _, player in ipairs(getElementsByType("player")) do
+        local name = TeamDatabase:getPlayerClanName(player)
+        -- Is the player a clan member?
+        if name then
+            local team = getTeamFromName(name)
+            if not team then
+                team = createTeam(name, HexToRGB(TeamDatabase:getColourFromClanName(name)))
+            end
+            setPlayerTeam(player, team)
+        end
+    end
+end)
 addEventHandler("onPlayerLogin", root, 
 function ()
     local name = TeamDatabase:getPlayerClanName(source)
