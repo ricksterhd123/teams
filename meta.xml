@@ -1,13 +1,12 @@
 <meta>
     <oop>true</oop>
     <info author="exile" version="0.2" name="teams" description="team panel" type="script"/>
-    <!-- Colour picker from freeroam -->
-    <script src="colorpicker/colorpicker.lua" type="client"/>
-    <file src="colorpicker/alpha.png" type="client"/>
-    <file src="colorpicker/palette.png" type="client"/>
     <!-- Shared -->
     <script src="shared.lua" type="shared"/>
     <!-- Client-side -->
+    <script src="gui/colorpicker/colorpicker.lua" type="client"/>
+    <file src="gui/colorpicker/alpha.png" type="client"/>
+    <file src="gui/colorpicker/palette.png" type="client"/>
     <script src="gui/TeamCreate.lua" type="client"/>
     <script src="gui/TeamPanel.lua" type="client"/>
     <script src="client.lua" type="client"/>
