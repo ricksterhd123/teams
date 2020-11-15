@@ -44,7 +44,11 @@ function (accName)
                         setPlayerTeam(getAccountPlayer(getAccount(accName)), nil)
                     end
                 end
+<<<<<<< HEAD
                 triggerClientEvent(client, "teams:updatePanel", resourceRoot, TeamDatabase:getClanMembers(clanName), TeamDatabase:getOnlineClanMembers(clanName))
+=======
+                --triggerClientEvent(client, "teams:updatePanel", TeamDatabase:getOnlineClanMembers(clanName))
+>>>>>>> 174de6b873da8a0f8fc21e09048c1828c569b41c
             end
         end
     end
