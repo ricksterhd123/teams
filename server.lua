@@ -79,6 +79,9 @@ function ()
                 destroyElement(team)
             end
             triggerClientEvent(client, "teams:closeTeamPanel", resourceRoot)
+            
+            -- TODO: update panel for online members when a member has left
+            --triggerClientEvent(client, "teams:updatePanel", resourceRoot, TeamDatabase:getClanMembers(clanName), TeamDatabase:getOnlineClanMembers(clanName))
         end
     end
 end)
