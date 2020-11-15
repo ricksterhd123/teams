@@ -1,5 +1,5 @@
 <meta>
-    <oop>true</oop>y
+    <oop>true</oop>
     <info author="exile" version="0.2" name="teams" description="team panel" type="script"/>
     <!-- Colour picker from freeroam -->
     <script src="colorpicker/colorpicker.lua" type="client"/>
