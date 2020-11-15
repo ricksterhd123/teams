@@ -1,5 +1,5 @@
 # teams
-A team script a little bit more robust than the one in FRP
+A little bit more robust than the one in FRP
 
 ## Features:
 - Create team using command /registerteam
