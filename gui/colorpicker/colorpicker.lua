@@ -86,9 +86,9 @@ colorPicker = {
 		guiWindowSetSizable(colorPicker.GUI.selectWindow, false)
 
 		colorPicker.GUI.palette = guiCreateStaticImage(colorPicker.selectWindow.paletteX, colorPicker.selectWindow.paletteY,
-		                                        256, 256, "colorpicker/palette.png", false, colorPicker.GUI.selectWindow)
+		                                        256, 256, "gui/colorpicker/palette.png", false, colorPicker.GUI.selectWindow)
 		colorPicker.GUI.alphaBar = guiCreateStaticImage(colorPicker.selectWindow.paletteX + 255 + colorPicker.selectWindow.alphaOffset, colorPicker.selectWindow.paletteY,
-		                                         colorPicker.selectWindow.alphaWidth, 255, "colorpicker/alpha.png", false, colorPicker.GUI.selectWindow)
+		                                         colorPicker.selectWindow.alphaWidth, 255, "gui/colorpicker/alpha.png", false, colorPicker.GUI.selectWindow)
 		colorPicker.isSelectOpen = false
 
 		-- Create the RGB and HSL edit boxes
