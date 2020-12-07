@@ -32,7 +32,7 @@ function TeamPanel:update(clanName, members, membersOnline, isOwner, thisAccName
             self.mainBtnState = 3
         end
     else
-        self.mainBtnState = 1
+        self.mainBtnState = 1 
     end
 
     if self.opened then
@@ -47,7 +47,7 @@ function TeamPanel:update(clanName, members, membersOnline, isOwner, thisAccName
 end
 
 function TeamPanel:createGridList()
-    self.gridlist[1] = guiCreateGridList(12, 28, 478, 287, false, self.window[1])
+    self.gridlist[1] = guiCreateGridList(12, 28, 450, 450, false, self.window[1])
     guiGridListAddColumn(self.gridlist[1], "Player", 0.9)
     
     -- Player creation
@@ -82,11 +82,11 @@ end
 
 function TeamPanel:create(leave, kick, delete)
     if not self.opened then
-        self.window[1] = guiCreateWindow((screenW - 500) / 2, (screenH - 400) / 2, 500, 400, self.info.clanName, false)
+        self.window[1] = guiCreateWindow((screenW - 600) / 2, (screenH - 500) / 2, 600, 500, self.info.clanName, false)
         guiWindowSetSizable(self.window[1], false)
-        self.button[1] = guiCreateButton(12, 339, 155, 35, self.mainBtnStates[self.mainBtnState], false, self.window[1])
+        self.button[1] = guiCreateButton(470, 30, 110, 35, self.mainBtnStates[self.mainBtnState], false, self.window[1])
         guiSetEnabled(self.button[1], self.mainBtnState == 1 or self.mainBtnState == 3)   
-        self.button[2] = guiCreateButton(171, 339, 155, 35, "Close", false, self.window[1])
+        self.button[2] = guiCreateButton(470, 440, 110, 35, "Close", false, self.window[1])
         self.fns = {leave, kick, delete}
         self:createGridList()
 
