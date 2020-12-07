@@ -82,8 +82,14 @@ function ()
             end
             triggerClientEvent(client, "teams:closeTeamPanel", resourceRoot)
             
-            -- TODO: update panel for online members when a member has left
-            --triggerClientEvent(client, "teams:updatePanel", resourceRoot, TeamDatabase:getClanMembers(clanName), TeamDatabase:getOnlineClanMembers(clanName))
+            -- Update panel for online members when a member has left
+            -- TODO need testing
+            local onlineMembers, onlinePlayers  = TeamDatabase:getOnlineClanMembers(clanName)
+            local allMembers = TeamDatabase:getClanMembers(clanName)
+            
+            for _, player in ipairs(players) do
+                triggerClientEvent(player, "teams:updatePanel", resourceRoot, allMembers, onlineMembers)
+            end
         end
     end
 end)
