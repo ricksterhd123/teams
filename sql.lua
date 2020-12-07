@@ -55,18 +55,22 @@ function TeamDatabase:getClanMembers(clanName)
     return id and self:getClanMembersFromID(id)
 end
 
--- dirty
+-- TODO: Tidy
 function TeamDatabase:getOnlineClanMembers(clanName)
     local members = self:getClanMembers(clanName)
     if members then
-        local onlineMembers = {}
+        local accountNames = {}
+        local players = {}
+
         for _, member in ipairs(members) do
             local account = getAccount(member.account)
-            if account and getAccountPlayer(account) then
-                table.insert(onlineMembers, member)
+            local player = getAccountPlayer(account)
+            if account and player then  -- redundant?
+                table.insert(accountNames, member)
+                table.insert(players, player)
             end
         end
-        return onlineMembers
+        return accountNames, players
     end
     return false
 end
