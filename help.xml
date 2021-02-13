@@ -1,8 +1,9 @@
-# teams
-A little bit more robust than the one in FRP
+<help popup="no">
+**teams
+A little bit more robust than the old one in FRP
 
-## Features:
-- Create team using command /registerteam
+**Features:
+- Create team using F4
 - Shows users inside team panel using command /team
 - Owner can kick member from team
 - Owner can delete team after kicking all players
@@ -11,5 +12,8 @@ A little bit more robust than the one in FRP
 - Invite players to team using /teaminvite [player]
 - Differentiate between members which are online and offline in team panel
 
-## Planned features:
+**Planned features:
 - Custom ranks, rank permissions, message of the day, rules, inbox, etc.
+
+**Created by: [SW]Exile
+</help>

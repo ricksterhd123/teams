@@ -1,10 +1,9 @@
 <meta>
     <oop>true</oop>
-    <info author="exile" version="0.2" name="teams" description="team panel" type="script"/>
+    <info author="exile" version="0.3" name="teams" description="team panel" type="script"/>
     <!-- Shared -->
     <script src="shared.lua" type="shared"/>
     <!-- Client-side -->
-    <script src="gui/Interpolate.lua" type="client"/>
     <script src="gui/colorpicker/colorpicker.lua" type="client"/>
     <file src="gui/colorpicker/alpha.png" type="client"/>
     <file src="gui/colorpicker/palette.png" type="client"/>
@@ -14,4 +13,6 @@
     <!-- Server-side -->
     <script src="sql.lua" type="server"/>
     <script src="server.lua" type="server"/>
+    <config src="help.xml" type="client" />
+    
 </meta>

@@ -24,6 +24,18 @@ function ()
     )
 end)
 
+bindKey("F4", "down", function ()
+    if teamCreate.opened then
+        teamCreate:destroy()
+    else
+        teamCreate:create(
+            function (name, colour)
+                triggerServerEvent("teams:onCreate", localPlayer, name, colour)
+            end
+        )
+    end
+end)
+
 addEvent("teams:closeTeamPanel", true)
 addEventHandler("teams:closeTeamPanel", resourceRoot,
 function ()

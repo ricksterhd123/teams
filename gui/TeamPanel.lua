@@ -24,7 +24,6 @@ function TeamPanel:update(clanName, members, membersOnline, isOwner, thisAccName
     self.info.isOwner = isOwner or self.info.isOwner
     self.info.thisAccName = thisAccName or self.info.thisAccName
 
-    -- TODO: Use a better GUI?
     if self.info.isOwner then
         if #self.info.members > 1 then
             self.mainBtnState = 2
@@ -37,6 +36,7 @@ function TeamPanel:update(clanName, members, membersOnline, isOwner, thisAccName
 
     if self.opened then
         guiSetText(self.button[1], self.mainBtnStates[self.mainBtnState])
+        guiSetEnabled(self.button[1], false)
         local handlers = getEventHandlers("onClientGUIClick", self.gridlist[1])
         for _, v in ipairs(handlers) do
             removeEventHandler("onClientGUIClick", self.gridlist[1], v)
@@ -93,12 +93,12 @@ function TeamPanel:create(leave, kick, delete)
         addEventHandler("onClientGUIClick", self.button[1], function()
             local fid = TeamPanel.mainBtnState
             local f = TeamPanel.fns[fid]
-            iprint(fid)
+            --iprint(fid)
             if fid == 2 then
                 local gridlist = TeamPanel.gridlist[1]
                 local rid, cid = guiGridListGetSelectedItem(gridlist)
                 local selectedAcc = guiGridListGetItemText(gridlist, rid, cid)
-                iprint(selectedAcc)
+                --iprint(selectedAcc)
                 f(selectedAcc)  -- kick selected player
             else
                 f() -- leave/delete clan

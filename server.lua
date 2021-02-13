@@ -11,13 +11,15 @@ function (name, colour)
         if not isGuestAccount(ownerAcc) then
             local owner = getAccountName(ownerAcc)
             local clanName = TeamDatabase:getPlayerClanName(source)
-            if not clanName then
+            local id = TeamDatabase:getIDFromClanName(name)
+
+            if not clanName and not id then
                 if TeamDatabase:createClan(owner, name, colour) then
                     outputChatBox("#00FF00[Teams] #FFFFFFYou have successfully created a team, please refer to F9 for useful information", source, 255, 255, 255, true)
                     setPlayerTeam(source, createTeam(name, HexToRGB(colour)))
                     outputServerLog("[Teams] "..getAccountName(ownerAcc).." created new team '"..name.."'")
                 end
-            elseif clanName == name then
+            elseif id then
                 outputChatBox("#00FF00[Teams] #FF0000Team already exists, please use an original team name", source, 255, 255, 255, true)
             else
                 outputChatBox("#00FF00[Teams] #FF0000You are already a team member", source, 255, 255, 255, true)
@@ -111,11 +113,11 @@ function (thePlayer)
     end
 end)
 
--- User requests to create team
-addCommandHandler("registerteam", 
-function (thePlayer)
-    return not isGuestAccount(getPlayerAccount(thePlayer)) and not TeamDatabase:getPlayerClanName(thePlayer) and triggerClientEvent(thePlayer, "teams:openCreator", resourceRoot)
-end)
+-- -- User requests to create team
+-- addCommandHandler("registerteam", 
+-- function (thePlayer)
+--     return not isGuestAccount(getPlayerAccount(thePlayer)) and not TeamDatabase:getPlayerClanName(thePlayer) and triggerClientEvent(thePlayer, "teams:openCreator", resourceRoot)
+-- end)
 
 addCommandHandler("teaminvite",
 function (thePlayer, cmd, playerName)

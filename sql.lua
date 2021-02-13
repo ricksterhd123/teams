@@ -64,10 +64,12 @@ function TeamDatabase:getOnlineClanMembers(clanName)
 
         for _, member in ipairs(members) do
             local account = getAccount(member.account)
-            local player = getAccountPlayer(account)
-            if account and player then  -- redundant?
-                table.insert(accountNames, member)
-                table.insert(players, player)
+            if account then
+                local player = getAccountPlayer(account)
+                if player then  -- redundant?
+                    table.insert(accountNames, member)
+                    table.insert(players, player)
+                end
             end
         end
         return accountNames, players
