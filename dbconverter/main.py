@@ -15,7 +15,8 @@ def createTables(snkConn):
 # into ['MaikinRD', 'oscardiaz', 'Andrea', 'Atr-gabo', 'alfercrack2019', 'Jose.2424', 'guada', 'Laura_Xx']
 def membersTXTToList(txt):
     if txt is not None:
-        return txt.split('|~|')[1:]
+        #print(type(txt))
+        return txt.decode().split('|~|')[1:]
     else:
         return []
 
@@ -27,10 +28,12 @@ def sourceData(srcConn):
     for row in c:
         name, owner, colour, members = row[0], row[1], row[2], membersTXTToList(row[3])
         try:
-            members.insert(0, members.pop(members.index(owner)))
-            teams.append((name, colour, members))
+            if owner:
+                members.insert(0, members.pop(members.index(owner.decode())))
+                teams.append((name.decode(), colour.decode(), members))
         except ValueError:
-            continue
+                continue
+
     return teams
 
 # Insert row into sink
@@ -48,12 +51,14 @@ def sourceToSink(srcConn, snkConn):
     for team in sourceData(srcConn):
         try:
             insertTeam(snkConn, team[0], team[1], team[2])
-        except sqlite3.IntegrityError:
+        except (sqlite3.IntegrityError, sqlite3.OperationalError):
             continue
 
 if __name__ == "__main__":
     srcConn = sqlite3.connect('teams.db')
+    srcConn.text_factory = bytes
     snkConn = sqlite3.connect('../teams.db')
+    #snkConn.text_factory = str
     print("Creating tables")
     createTables(snkConn)
     print("Transferring data")
