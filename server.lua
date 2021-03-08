@@ -29,6 +29,7 @@ local function onCreate(name, colour)
                 if TeamDatabase:createClan(owner, name, colour) then
                     outputChatBox("#00FF00[Teams] #FFFFFFYou have successfully created a team, please refer to F10 for useful information", source, 255, 255, 255, true)
                     setPlayerTeam(source, createTeam(name, HexToRGB(colour)))
+                    triggerClientEvent(source, "teams:toggleCreator", resourceRoot)
                     outputServerLog("[Teams] "..getAccountName(ownerAcc).." created new team '"..name.."'")
                 end
             elseif id then
