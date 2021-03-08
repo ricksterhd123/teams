@@ -17,24 +17,34 @@ end
 addEvent("teams:openCreator", true)
 addEventHandler("teams:openCreator", resourceRoot,
 function ()
-    teamCreate:create(
-        function (name, colour)
-            triggerServerEvent("teams:onCreate", localPlayer, name, colour)
-        end
-    )
+    teamCreate:create(function (name, colour)
+        triggerServerEvent("teams:onCreate", localPlayer, name, colour)
+    end)
 end)
 
-bindKey("F4", "down", function ()
+addEvent("teams:toggleCreator", true)
+addEventHandler("teams:toggleCreator", resourceRoot, 
+function (data)
     if teamCreate.opened then
         teamCreate:destroy()
     else
-        teamCreate:create(
-            function (name, colour)
-                triggerServerEvent("teams:onCreate", localPlayer, name, colour)
-            end
-        )
+        teamCreate:create(function (name, colour)
+            triggerServerEvent("teams:onCreate", localPlayer, name, colour)
+        end)
     end
 end)
+
+-- bindKey("F4", "down", function ()
+--     if teamCreate.opened then
+--         teamCreate:destroy()
+--     else
+--         teamCreate:create(
+--             function (name, colour)
+--                 triggerServerEvent("teams:onCreate", localPlayer, name, colour)
+--             end
+--         )
+--     end
+-- end)
 
 addEvent("teams:closeTeamPanel", true)
 addEventHandler("teams:closeTeamPanel", resourceRoot,
@@ -54,4 +64,15 @@ addEventHandler("teams:openPanel", resourceRoot,
 function (data)
     teamPanel:update(data.name, data.members, data.onlineMembers, data.owner, data.thisAccName)
     teamPanel:create(onTeamMemberLeave, onTeamMemberKick, onTeamMemberDisband)
+end)
+
+addEvent("teams:toggleTeamPanel", true)
+addEventHandler("teams:toggleTeamPanel", resourceRoot, 
+function (data)
+    if teamPanel.opened then
+        teamPanel:destroy()
+    else
+        teamPanel:update(data.name, data.members, data.onlineMembers, data.owner, data.thisAccName)
+        teamPanel:create(onTeamMemberLeave, onTeamMemberKick, onTeamMemberDisband)
+    end
 end)

@@ -14,5 +14,4 @@
     <script src="sql.lua" type="server"/>
     <script src="server.lua" type="server"/>
     <config src="help.xml" type="client" />
-    
 </meta>

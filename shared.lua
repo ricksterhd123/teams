@@ -25,3 +25,10 @@ function getPlayerFromPartialName(name)
         end
     end
 end
+
+function table.join(t1, t2)
+    for i, v in ipairs(t2) do
+        t1[#t1+1] = v
+    end
+    return t1
+end

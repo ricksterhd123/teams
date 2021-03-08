@@ -7,7 +7,6 @@ local TeamPanel = {
     info = {    -- Information about the team
         clanName = "",
         members = {},
-        membersOnline = {},
         isOwner = false,
         thisAccName = ""
     },
@@ -17,10 +16,55 @@ local TeamPanel = {
     mainBtnState  = 1,
 }
 
+--[[
+    Function that reorders the list of members using the list of online members
+    - Members online should be on top .online = true
+    - Members offline .online = false
+    
+    Params:
+    [table] members         - All of the members in team
+    [table] membersOnline   - All of the members in which are online
+    
+    Returns:
+    [table] members         - Reordered list of members
+]]
+function TeamPanel:processMembers(members, membersOnline)
+    local online = {}
+    local offline = {}
+
+    for _, member in ipairs(members) do
+        local isOnline = false
+        for _, onlineMember in ipairs(membersOnline) do
+            if onlineMember.account == member.account then
+                isOnline = true
+                break
+            end
+        end
+
+        member.online = isOnline
+        if isOnline then
+            online[#online+1] = member
+        else
+            offline[#offline+1] = member
+        end
+    end
+
+    return table.join(online, offline)
+end
+
+--[[
+    Subroutine that updates the gui elements such as gridlist and internal state
+    
+    Params:
+    [string]    clanName        - Name of clan
+    [table]     members         - List of members
+    [table]     membersOnline   - List of members online
+    [bool]      isOwner         - Is localPlayer the owner? (i.e, can they use kick/delete and not leave?)
+    [string]    thisAccName     - localPlayer account name
+]]
 function TeamPanel:update(clanName, members, membersOnline, isOwner, thisAccName)
     self.info.clanName = clanName or self.info.clanName
-    self.info.members = members or self.info.members
-    self.info.membersOnline = membersOnline or self.info.membersOnline
+    self.info.members = self:processMembers(members, membersOnline) or self.info.members
     self.info.isOwner = isOwner or self.info.isOwner
     self.info.thisAccName = thisAccName or self.info.thisAccName
 
@@ -46,6 +90,9 @@ function TeamPanel:update(clanName, members, membersOnline, isOwner, thisAccName
     end
 end
 
+--[[
+    Subroutine creates the gridlist
+]]
 function TeamPanel:createGridList()
     self.gridlist[1] = guiCreateGridList(12, 28, 450, 450, false, self.window[1])
     guiGridListAddColumn(self.gridlist[1], "Player", 0.9)
@@ -56,16 +103,10 @@ function TeamPanel:createGridList()
         local accName = self.info.members[i].account
         guiGridListSetItemText(self.gridlist[1], id, 1, accName, false, false)
 
-        for i, v in ipairs(self.info.membersOnline) do
-            if accName == v then
-                guiGridListSetItemColor(self.gridlist[1], id, 1, 255, 255, 255)
-            end
-        end
-
-        if accName == self.info.thisAccName then
+        if self.info.members[i].online then
             guiGridListSetItemColor(self.gridlist[1], id, 1, 0, 255, 0)
         else
-            guiGridListSetItemColor(self.gridlist[1], id, 1, 150, 0, 0)
+            guiGridListSetItemColor(self.gridlist[1], id, 1, 255, 0, 0)
         end
     end
 
@@ -80,13 +121,23 @@ function TeamPanel:createGridList()
     end, false)
 end
 
+--[[
+    Subroutine creates the team panel
+    Params:
+    [function] leave            -- Leaves the team 
+    [function([string])] kick   -- Kicks selected player account name
+    [function] delete           -- Deletes the team
+]]
 function TeamPanel:create(leave, kick, delete)
     if not self.opened then
         self.window[1] = guiCreateWindow((screenW - 600) / 2, (screenH - 500) / 2, 600, 500, self.info.clanName, false)
+        guiSetAlpha(self.window[1], 1)
         guiWindowSetSizable(self.window[1], false)
-        self.button[1] = guiCreateButton(470, 30, 110, 35, self.mainBtnStates[self.mainBtnState], false, self.window[1])
+        self.button[1] = guiCreateButton(470, 70, 110, 35, self.mainBtnStates[self.mainBtnState], false, self.window[1])
+        self.button[3] = guiCreateButton(470, 30, 110, 35, "Invite", false, self.window[1])
         guiSetEnabled(self.button[1], self.mainBtnState == 1 or self.mainBtnState == 3)   
         self.button[2] = guiCreateButton(470, 440, 110, 35, "Close", false, self.window[1])
+        
         self.fns = {leave, kick, delete}
         self:createGridList()
 
@@ -115,22 +166,29 @@ function TeamPanel:create(leave, kick, delete)
     end
 end
 
+--[[
+    Destroys the root element in the GUI (window), 
+    and clears the state
+]]
 function TeamPanel:destroy()
     if self.opened then
         if isCursorShowing() then
             showCursor(false)
         end
-
+        
         destroyElement(self.window[1])
-        self.opened = false
-        self.members = {}
-        self.mainBtnState = 1
-        self.info = {
+        self.button = {}
+        self.window = {}
+        self.gridlist = {}
+        self.fns = {}   -- functions which handle leave, kick and delete
+        self.info = {    -- Information about the team
             clanName = "",
             members = {},
             isOwner = false,
             thisAccName = ""
         }
+        self.opened = false
+        self.mainBtnState  = 1
     end
 end
 
