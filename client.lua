@@ -1,18 +1,7 @@
 --[[
     Kick, leave and disband
+    TODO: these event names are bad and should be improved
 ]]
-
-function onTeamMemberKick(selectedAcc)
-    triggerServerEvent("teams:onKick", localPlayer, selectedAcc)
-end
-
-function onTeamMemberLeave()
-    triggerServerEvent("teams:onLeave", localPlayer)
-end
-
-function onTeamMemberDisband()
-    triggerServerEvent("teams:onDisband", localPlayer)
-end
 
 addEvent("teams:openCreator", true)
 addEventHandler("teams:openCreator", resourceRoot,
@@ -25,7 +14,7 @@ end)
 addEvent("teams:toggleCreator", true)
 addEventHandler("teams:toggleCreator", resourceRoot, 
 function (data)
-    if teamCreate.opened then
+    if teamCreate.visible then
         teamCreate:destroy()
     else
         teamCreate:create(function (name, colour)
@@ -34,45 +23,57 @@ function (data)
     end
 end)
 
--- bindKey("F4", "down", function ()
---     if teamCreate.opened then
---         teamCreate:destroy()
---     else
---         teamCreate:create(
---             function (name, colour)
---                 triggerServerEvent("teams:onCreate", localPlayer, name, colour)
---             end
---         )
---     end
--- end)
-
+--[[
+    Close team panel
+]]
 addEvent("teams:closeTeamPanel", true)
 addEventHandler("teams:closeTeamPanel", resourceRoot,
 function ()
     teamPanel:destroy()
 end)
 
+--[[
+    update team panel
+    TODO: seems a little pointless to update client if not visible
+]]
 addEvent("teams:updatePanel", true)
 addEventHandler("teams:updatePanel", resourceRoot, 
 function (members, onlineMembers)
     teamPanel:update(_, members, onlineMembers)
 end)
 
--- Server requests source's client to open panel
-addEvent("teams:openPanel", true)
-addEventHandler("teams:openPanel", resourceRoot, 
-function (data)
-    teamPanel:update(data.name, data.members, data.onlineMembers, data.owner, data.thisAccName)
-    teamPanel:create(onTeamMemberLeave, onTeamMemberKick, onTeamMemberDisband)
+--[[
+    Client -> Server
+    Server -> Client
+]]
+addEvent("teams:openPlayerList", true)
+addEventHandler("teams:openPlayerList", resourceRoot,
+function (players)
+    playerList:create(300, 400)
+    playerList:update(players)
 end)
 
+--[[
+    Updates player list if someone login/logout/quit or kicked/joined team
+]]
+addEvent("teams:updatePlayerList", true)
+addEventHandler("teams:updatePlayerList", resourceRoot,
+function (players)
+    if playerList.visible then
+        playerList:update(players)
+    end
+end)
+
+--[[
+    Open and close team panel
+]]
 addEvent("teams:toggleTeamPanel", true)
 addEventHandler("teams:toggleTeamPanel", resourceRoot, 
 function (data)
-    if teamPanel.opened then
+    if teamPanel.visible then
         teamPanel:destroy()
     else
         teamPanel:update(data.name, data.members, data.onlineMembers, data.owner, data.thisAccName)
-        teamPanel:create(onTeamMemberLeave, onTeamMemberKick, onTeamMemberDisband)
+        teamPanel:create()
     end
 end)

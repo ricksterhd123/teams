@@ -13,3 +13,6 @@ A little bit more robust than the one in FRP
 
 ## Planned features:
 - Custom ranks, rank permissions, message of the day, rules, inbox, etc.
+
+## Change log:
+- 0.4: Added invite button, fixed team panel member list ordering
