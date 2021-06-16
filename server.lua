@@ -234,6 +234,7 @@ local function acceptInvite(thePlayer)
 end
 addCommandHandler("teamaccept", acceptInvite)
 
+
 --- invite button has been pressed
 local function onPlayerInviteButtonPressed()
     triggerClientEvent(client, "teams:openPlayerList", resourceRoot, getPlayersWithoutTeam())
