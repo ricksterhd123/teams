@@ -1,6 +1,6 @@
 <meta>
     <oop>true</oop>
-    <info author="exile" version="0.3" name="teams" description="team panel" type="script"/>
+    <info author="exile" version="0.4" name="teams" description="team panel" type="script"/>
     <!-- Shared -->
     <script src="shared.lua" type="shared"/>
     <!-- Client-side -->
@@ -9,6 +9,7 @@
     <file src="gui/colorpicker/palette.png" type="client"/>
     <script src="gui/TeamCreate.lua" type="client"/>
     <script src="gui/TeamPanel.lua" type="client"/>
+    <script src="gui/PlayerList.lua" type="client"/>
     <script src="client.lua" type="client"/>
     <!-- Server-side -->
     <script src="sql.lua" type="server"/>
