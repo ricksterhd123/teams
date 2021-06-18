@@ -4,7 +4,7 @@ local TeamCreate = {
     button = {},
     window = {},
     label = {},
-    opened = false,
+    visible = false,
     name   = "",
     colour = {0,0,0}
 }
@@ -14,7 +14,7 @@ function closedColorPicker(r,g,b,a)
 end
 
 function TeamCreate:create(createTeam)
-    if self.opened then return end
+    if self.visible then return end
     createTeam = createTeam or function (name, colour) iprint(name, colour) return end -- Default value
     self.window[1] = guiCreateWindow((screenW - 368) / 2, (screenH - 123) / 2, 368, 123, "Create team", false)
     guiWindowSetSizable(self.window[1], false)
@@ -41,16 +41,17 @@ function TeamCreate:create(createTeam)
             outputChatBox("#00FF00[Teams] #FF0000Invalid name or colour, please try again.", 255, 255, 255, true)
         end
     end, false)
+
     addEventHandler("onClientGUIClick", self.button[2],
     function ()
         TeamCreate:destroy()
     end, false)
 
-    self.opened = true
+    self.visible = true
 end
 
 function TeamCreate:setColour(r,g,b)
-    if self.opened then
+    if self.visible then
         guiSetText(self.edit[2], RGBToHex(r,g,b))
     end
     self.colour = {r,g,b}
@@ -73,19 +74,19 @@ function TeamCreate:getRGBColour()
 end
 
 function TeamCreate:valid()
-    if not self.opened then return false end
+    if not self.visible then return false end
     local tName = guiGetText(self.edit[1])
     local tColour = guiGetText(self.edit[2])
     return #tName > 0 and #tColour > 0
 end
 
 function TeamCreate:destroy()
-    if not self.opened then return end
+    if not self.visible then return end
     destroyElement(self.window[1])
     showCursor(false)
     self.name = ""
     self.colour = {0, 0, 0}
-    self.opened = false
+    self.visible = false
 end
 
 teamCreate = TeamCreate

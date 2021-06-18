@@ -10,7 +10,7 @@ local TeamPanel = {
         isOwner = false,
         thisAccName = ""
     },
-    opened = false,
+    visible = false,
     -- The buttons' function changes depending on the state
     mainBtnStates = {"Leave", "Kick", "Delete"},
     mainBtnState  = 1,
@@ -78,7 +78,7 @@ function TeamPanel:update(clanName, members, membersOnline, isOwner, thisAccName
         self.mainBtnState = 1 
     end
 
-    if self.opened then
+    if self.visible then
         guiSetText(self.button[1], self.mainBtnStates[self.mainBtnState])
         guiSetEnabled(self.button[1], false)
         local handlers = getEventHandlers("onClientGUIClick", self.gridlist[1])
@@ -128,38 +128,39 @@ end
     [function([string])] kick   -- Kicks selected player account name
     [function] delete           -- Deletes the team
 ]]
-function TeamPanel:create(leave, kick, delete)
-    if not self.opened then
+function TeamPanel:create()
+    if not self.visible then
         self.window[1] = guiCreateWindow((screenW - 600) / 2, (screenH - 500) / 2, 600, 500, self.info.clanName, false)
-        guiSetAlpha(self.window[1], 1)
-        guiWindowSetSizable(self.window[1], false)
         self.button[1] = guiCreateButton(470, 70, 110, 35, self.mainBtnStates[self.mainBtnState], false, self.window[1])
         self.button[3] = guiCreateButton(470, 30, 110, 35, "Invite", false, self.window[1])
-        guiSetEnabled(self.button[1], self.mainBtnState == 1 or self.mainBtnState == 3)   
         self.button[2] = guiCreateButton(470, 440, 110, 35, "Close", false, self.window[1])
-        
-        self.fns = {leave, kick, delete}
+
+        guiSetAlpha(self.window[1], 1)
+        guiWindowSetSizable(self.window[1], false)
+        guiSetEnabled(self.button[1], self.mainBtnState == 1 or self.mainBtnState == 3)
+        guiSetEnabled(self.button[3], self.info.isOwner)
+
         self:createGridList()
 
         addEventHandler("onClientGUIClick", self.button[1], function()
             local fid = TeamPanel.mainBtnState
-            local f = TeamPanel.fns[fid]
-            --iprint(fid)
-            if fid == 2 then
+            if fid == 1 then
+                TeamPanel:leave()
+            elseif fid == 2 then
                 local gridlist = TeamPanel.gridlist[1]
                 local rid, cid = guiGridListGetSelectedItem(gridlist)
                 local selectedAcc = guiGridListGetItemText(gridlist, rid, cid)
                 --iprint(selectedAcc)
-                f(selectedAcc)  -- kick selected player
-            else
-                f() -- leave/delete clan
+                TeamPanel:kick(selectedAcc)  -- kick selected player
+            elseif fid == 3 then
+                TeamPanel:disband() -- disband clan
             end
         end, false)
 
         addEventHandler("onClientGUIClick", self.button[2], function() TeamPanel:destroy() end, false)
-        
-        self.opened = true
-        
+        addEventHandler("onClientGUIClick", self.button[3], function() TeamPanel:invite() end, false)
+        self.visible = true
+
         if not isCursorShowing() then
             showCursor(true)
         end
@@ -171,7 +172,7 @@ end
     and clears the state
 ]]
 function TeamPanel:destroy()
-    if self.opened then
+    if self.visible then
         if isCursorShowing() then
             showCursor(false)
         end
@@ -187,9 +188,25 @@ function TeamPanel:destroy()
             isOwner = false,
             thisAccName = ""
         }
-        self.opened = false
+        self.visible = false
         self.mainBtnState  = 1
     end
+end
+
+function TeamPanel:kick(selectedAcc)
+    triggerServerEvent("teams:onKick", resourceRoot, selectedAcc)
+end
+
+function TeamPanel:leave()
+    triggerServerEvent("teams:onLeave", resourceRoot)
+end
+
+function TeamPanel:disband()
+    triggerServerEvent("teams:onDisband", resourceRoot)
+end
+
+function TeamPanel:invite()
+    triggerServerEvent("teams:onInviteButtonPressed", resourceRoot)
 end
 
 teamPanel = TeamPanel
